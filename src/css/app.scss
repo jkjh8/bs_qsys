@@ -1,0 +1,52 @@
+// app global css in SCSS form
+.header {
+  background: #fff;
+  color: #222;
+  height: 3rem;
+  border-bottom: 1px solid #ddd;
+  padding: 0 1rem 0 1.5rem;
+}
+
+.body-padding {
+  padding: 5%;
+}
+
+.boder-radius {
+  border-radius: 8px;
+}
+
+.main-title {
+  font-size: 1.5rem;
+}
+
+.title {
+  font-size: 1.1rem;
+}
+
+.input-caption {
+  font-size: 0.7rem;
+}
+
+.no-decoration {
+  text-decoration: none;
+}
+
+.alink {
+  font-size: 0.8rem;
+}
+
+.sans-font {
+  font-family: NotoSans;
+}
+
+.sanskr-font {
+  font-family: NotoSansKR;
+}
+
+.ubuntumono-font {
+  font-family: UbuntuMono;
+}
+
+.q-field--outlined .q-field__control {
+  border-radius: 7px;
+}
