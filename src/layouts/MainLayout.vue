@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted } from 'vue'
 // components
 import HomeLogo from 'src/components/layout/homeLogo'
 import ToolbarLinks from 'src/components/layout/toolbarLinks'
@@ -6,6 +7,16 @@ import ToolbarLinks from 'src/components/layout/toolbarLinks'
 // computed
 // Variables
 // Functions
+
+onMounted(() => {
+  window.addEventListener('resize', () => {
+    //
+    API.windowSizePosition({
+      height: window.outerHeight,
+      width: window.outerWidth
+    })
+  })
+})
 </script>
 
 <template>

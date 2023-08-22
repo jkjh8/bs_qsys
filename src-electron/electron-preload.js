@@ -30,15 +30,18 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('API', {
-  omPromise: async (args) => {
+  onPromise: async (args) => {
     return await ipcRenderer.invoke('onPromise', { ...args })
   },
-  request: (args) => {
-    return ipcRenderer.send('request', { ...args })
+  onRequest: (args) => {
+    return ipcRenderer.send('onRequest', { ...args })
   },
-  response: (fn) => {
-    ipcRenderer.on('response', (e, ...args) => {
+  onResponse: (fn) => {
+    ipcRenderer.on('onResponse', (e, ...args) => {
       fn(...args)
     })
+  },
+  windowSizePosition: (args) => {
+    ipcRenderer.send('windowSizePosition', { ...args })
   }
 })

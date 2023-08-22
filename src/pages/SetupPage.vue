@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-
+// components
+import ServerAddress from 'src/components/setup/serverAddr'
+import ServerUuid from 'src/components/setup/serverUuid'
 // variables
 const serverAddress = ref('http://localhost')
 
@@ -10,21 +12,9 @@ onMounted(() => {})
 
 <template>
   <div class="body-padding row justify-center">
-    <div class="setup-card">
-      <div class="row no-wrap justify-between items-center">
-        <div class="text-bold sans-font">Server Address</div>
-        <q-input
-          v-model="serverAddress"
-          style="width: 35%"
-          outlined
-          dense
-          hide-bottom-space
-        >
-          <template #append>
-            <q-icon name="check_circle" />
-          </template>
-        </q-input>
-      </div>
+    <div class="setup-card q-gutter-y-sm">
+      <ServerAddress />
+      <ServerUuid />
     </div>
   </div>
 </template>
