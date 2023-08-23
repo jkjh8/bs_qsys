@@ -4,6 +4,9 @@ import { onMounted } from 'vue'
 import HomeLogo from 'src/components/layout/homeLogo'
 import ToolbarLinks from 'src/components/layout/toolbarLinks'
 // composables
+// stores
+import { useOnlineStore } from 'src/stores/online'
+const onlineStore = useOnlineStore()
 // computed
 // Variables
 // Functions
@@ -15,6 +18,15 @@ onMounted(() => {
       height: window.outerHeight,
       width: window.outerWidth
     })
+  })
+  API.onPromise({ command: 'socketConnect' })
+
+  API.onResponse((args) => {
+    switch (args.key) {
+      case 'socketIoConnect':
+        onlineStore.updateOnline(args.value)
+        break
+    }
   })
 })
 </script>

@@ -9,7 +9,6 @@ ipcMain.on('windowSizePosition', async (e, args) => {
       { $set: { ...args } },
       { upsert: true }
     )
-    console.log(r)
   } catch (err) {
     logger.error('IPC on request failed with error: ' + err)
   }

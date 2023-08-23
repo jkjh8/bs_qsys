@@ -5,8 +5,16 @@ export class Qrc extends EventEmitter {
   constructor(ipaddress) {
     super()
     this.client = net.Socket()
+    // commands
+    this.commands = []
+    this.commandInterval = null
     this._ipaddress = ipaddress
+    // connection
     this._connected = false
+    this.connectInterval = null
+    this._timeout = 0
+    this._connectionTimer = null
+    // data
     this._data = Buffer.alloc(0)
     this.data = Buffer.alloc(0)
     this._noOpInterval = null
@@ -15,7 +23,8 @@ export class Qrc extends EventEmitter {
     // connect
     this.client.on('connect', () => {
       this._connected = true
-      // TODO: noOp interval start
+      // connect timout interval start
+      this.setConnectionTimeout()
       this.emit('connect', `Q-SYS connected ${this._ipaddress}`)
     })
 
@@ -87,6 +96,81 @@ export class Qrc extends EventEmitter {
       }
     } catch (error) {
       this.emit('error', `Q-SYS Data parser Error ${this._ipaddress}`)
+    }
+  }
+
+  send(msg) {
+    if (this._connected) {
+      try {
+        this.client.write(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            ...msg
+          }) + '\0'
+        )
+      } catch (err) {
+        this.emit('error', err)
+      }
+    } else {
+      return this.emit('error', `${this._ipaddress} socket is not connected`)
+    }
+  }
+  addCommands(msg) {
+    this.commands.push(msg)
+    if (!this.commandInterval) {
+      this.commandInterval = setInterval(() => {
+        if (this.commands.length > 0) {
+          const msg = this.commands.shift()
+          this.send(msg)
+        } else {
+          clearInterval(this.commandInterval)
+          this.commandInterval = null
+        }
+      }, 500)
+    }
+  }
+  connect() {
+    if (!this._connected) {
+      this.connectInterval = setInterval(() => {
+        if (this._connected) {
+          clearInterval(this.connectInterval)
+          this.connectInterval = null
+        } else {
+          try {
+            this.client.connect({ port: 1710, host: this._ipaddress })
+          } catch (err) {
+            this.emit('error', `socket connect error: ${this._ipaddress}`)
+          }
+        }
+      }, 5000)
+    } else {
+      this.emit('error', `${this._ipaddress} is already connected`)
+    }
+  }
+  disconnect() {
+    if (this.connectInterval) {
+      clearInterval(this.connectInterval)
+      clearInterval(this._connectionTimer)
+      this.connectInterval = null
+      this._connectionTimer = null
+    }
+    if (this._connected) {
+      this.client.end()
+    }
+  }
+  setConnectionTimeout() {
+    if (!this._connectionTimer) {
+      this._connectionTimer = setInterval(() => {
+        this._timeout = this._timeout - 1
+        if (this._timeout < 5) {
+          this.addCommands({ method: 'NoOp', params: {} })
+          this._timeout = 60
+        }
+        if (this._timeout < 0) {
+          clearInterval(this._connectionTimer)
+          this._connectionTimer = null
+        }
+      })
     }
   }
 }

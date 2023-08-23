@@ -1,9 +1,20 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useOnlineStore } from '/src/stores/online'
 
+const onlineStore = useOnlineStore()
+const online = computed(() => onlineStore.online)
 const $r = useRouter()
-const onlineColor = ref('red')
+const onlineColor = computed(() => {
+  if (online.value) {
+    return 'green'
+  } else {
+    return 'red'
+  }
+})
+
+onMounted(() => {})
 </script>
 
 <template>
@@ -14,7 +25,7 @@ const onlineColor = ref('red')
         Bridge Q-SYS
       </span>
     </div>
-    <div class="online">offline</div>
+    <div class="online">{{ online ? 'online' : 'offline' }}</div>
   </div>
 </template>
 

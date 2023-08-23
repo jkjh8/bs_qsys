@@ -25,15 +25,14 @@ async function createWindow() {
    */
   const size = await db.findOne({ key: 'windowSize' })
   const position = await db.findOne({ key: 'windowPosition' })
-  console.log(size, position)
 
   // create a main window
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
-    width: size.width,
-    height: size.height,
-    x: position.x,
-    y: position.y,
+    width: size.width ?? 800,
+    height: size.height ?? 600,
+    x: position.x ?? 100,
+    y: position.y ?? 50,
     useContentSize: true,
     webPreferences: {
       contextIsolation: true,
