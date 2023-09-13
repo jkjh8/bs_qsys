@@ -2,17 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOnlineStore } from '/src/stores/online'
+import { storeToRefs } from 'pinia'
 
-const onlineStore = useOnlineStore()
-const online = computed(() => onlineStore.online)
 const $r = useRouter()
-const onlineColor = computed(() => {
-  if (online.value) {
-    return 'green'
-  } else {
-    return 'red'
-  }
-})
+const { online } = storeToRefs(useOnlineStore())
 
 onMounted(() => {})
 </script>
@@ -31,9 +24,9 @@ onMounted(() => {})
 
 <style scoped>
 .online {
-  color: v-bind(onlineColor);
+  color: v-bind(online ? 'green': 'red');
   font-size: 10px;
-  border: 1px solid v-bind(onlineColor);
+  border: 1px solid v-bind(online ? 'green': 'red');
   border-radius: 4px;
   height: 16px;
   padding: 0px 1px 0px 1px;

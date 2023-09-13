@@ -2,6 +2,7 @@ import { BrowserWindow as bw } from 'electron'
 import { io } from 'socket.io-client'
 import db from '/src-electron/db'
 import logger from '/src-electron/logger'
+import { ipcOnline } from '/src-electron/ipc'
 
 let socket
 
@@ -30,18 +31,13 @@ const socketIoConnect = async () => {
   })
 
   socket.on('connect', () => {
-    bw.fromId(1).webContents.send('onResponse', {
-      key: 'socketIoConnect',
-      value: true
-    })
+    ipcOnline({ value: true, id: socket.id })
     logger.info(`Socket IO Connected ${socket.id}`)
   })
 
   socket.on('disconnect', () => {
-    bw.fromId(1).webContents.send('onResponse', {
-      key: 'socketIoConnect',
-      value: false
-    })
+    ipcOnline({ value: false, id: null })
+    logger.info(`Socket IO Disconnect ${socket.id}`)
   })
 }
 

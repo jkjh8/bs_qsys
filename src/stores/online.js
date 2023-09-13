@@ -3,10 +3,7 @@ import { defineStore } from 'pinia'
 
 export const useOnlineStore = defineStore('online', () => {
   const online = ref(false)
+  const id = ref('')
 
-  function updateOnline(value) {
-    online.value = value
-  }
-
-  return { online, updateOnline }
+  return { online, id }
 })

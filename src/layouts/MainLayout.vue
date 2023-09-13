@@ -4,30 +4,31 @@ import { onMounted } from 'vue'
 import HomeLogo from 'src/components/layout/homeLogo'
 import ToolbarLinks from 'src/components/layout/toolbarLinks'
 // composables
+import useOnline from 'src/composables/useOnline.js'
 // stores
-import { useOnlineStore } from 'src/stores/online'
-const onlineStore = useOnlineStore()
+// import { useOnlineStore } from 'src/stores/online'
+// const onlineStore = useOnlineStore()
 // computed
 // Variables
 // Functions
 
 onMounted(() => {
-  window.addEventListener('resize', () => {
-    //
-    API.windowSizePosition({
-      height: window.outerHeight,
-      width: window.outerWidth
-    })
-  })
-  API.onPromise({ command: 'socketConnect' })
-
-  API.onResponse((args) => {
-    switch (args.key) {
-      case 'socketIoConnect':
-        onlineStore.updateOnline(args.value)
-        break
-    }
-  })
+  useOnline()
+  // window.addEventListener('resize', () => {
+  //   //
+  //   API.windowSizePosition({
+  //     height: window.outerHeight,
+  //     width: window.outerWidth
+  //   })
+  // })
+  // API.onPromise({ command: 'socketConnect' })
+  // API.onResponse((args) => {
+  //   switch (args.key) {
+  //     case 'socketIoConnect':
+  //       onlineStore.updateOnline(args.value)
+  //       break
+  //   }
+  // })
 })
 </script>
 

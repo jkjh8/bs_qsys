@@ -1,13 +1,15 @@
-import { ipcMain } from 'electron'
+import { BroserWindow as bw } from 'electron'
 import db from '../db'
 import logger from '../logger'
+import chkOnline from './chkOnline'
+import onPromise from './promise'
 
-import('./promise')
+chkOnline()
+
+onPromise()
+// import('./promise')
 import('./windows')
 
-ipcMain.on('onRequest', async (e, args) => {
-  try {
-  } catch (err) {
-    logger.error('IPC on request failed with error: ' + err)
-  }
-})
+export function ipcOnline(args) {
+  bw.fromId(1).webContents.send('online', { ...args })
+}

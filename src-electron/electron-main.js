@@ -23,16 +23,16 @@ async function createWindow() {
   /**
    * Initial window options
    */
-  const size = await db.findOne({ key: 'windowSize' })
-  const position = await db.findOne({ key: 'windowPosition' })
+  // const size = await db.findOne({ key: 'windowSize' })
+  // const position = await db.findOne({ key: 'windowPosition' })
 
   // create a main window
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
-    width: size.width ?? 800,
-    height: size.height ?? 600,
-    x: position.x ?? 100,
-    y: position.y ?? 50,
+    width: 800,
+    height: 600,
+    // x: position.x ?? 100,
+    // y: position.y ?? 50,
     useContentSize: true,
     webPreferences: {
       contextIsolation: true,
@@ -58,22 +58,22 @@ async function createWindow() {
     mainWindow = null
   })
 
-  mainWindow.on('move', async () => {
-    const position = mainWindow.getPosition()
-    const r = await db.update(
-      {
-        key: 'windowPosition'
-      },
-      {
-        $set: {
-          x: position[0],
-          y: position[1]
-        }
-      },
-      { upsert: true }
-    )
-    console.log(r)
-  })
+  // mainWindow.on('move', async () => {
+  //   const position = mainWindow.getPosition()
+  //   const r = await db.update(
+  //     {
+  //       key: 'windowPosition'
+  //     },
+  //     {
+  //       $set: {
+  //         x: position[0],
+  //         y: position[1]
+  //       }
+  //     },
+  //     { upsert: true }
+  //   )
+  //   console.log(r)
+  // })
 }
 
 app.whenReady().then(createWindow)
