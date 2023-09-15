@@ -1,19 +1,22 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onBeforeMount, onMounted } from 'vue'
 // components
 import HomeLogo from 'src/components/layout/homeLogo'
 import ToolbarLinks from 'src/components/layout/toolbarLinks'
 // composables
 import useOnline from 'src/composables/useOnline.js'
-// stores
-// import { useOnlineStore } from 'src/stores/online'
-// const onlineStore = useOnlineStore()
-// computed
-// Variables
-// Functions
-
+import useDevices from 'src/composables/useDevices.js'
+// initalization
+const { APIOnline, chkOnlineInterval } = useOnline()
+const { APIDevices } = useDevices()
+// lifecycle hooks
+onBeforeMount(() => {
+  APIOnline()
+  APIDevices()
+  chkOnlineInterval()
+})
 onMounted(() => {
-  useOnline()
+  API.start()
   // window.addEventListener('resize', () => {
   //   //
   //   API.windowSizePosition({
@@ -41,9 +44,13 @@ onMounted(() => {
       </div>
     </q-header>
     <q-page-container>
-      <router-view />
+      <router-view class="view_page" />
     </q-page-container>
   </q-layout>
 </template>
 
-<style scope></style>
+<style scope>
+.view_page {
+  padding: 5% 5%;
+}
+</style>

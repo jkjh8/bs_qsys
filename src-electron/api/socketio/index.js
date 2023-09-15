@@ -20,7 +20,7 @@ const checkServerAddress = async () => {
   }
 }
 
-const socketIoConnect = async () => {
+const connect = async () => {
   const addr = await checkServerAddress()
   const apiKey = await db.findOne({ key: 'id' })
   socket = io(`${addr}/device`, {
@@ -35,10 +35,15 @@ const socketIoConnect = async () => {
     logger.info(`Socket IO Connected ${socket.id}`)
   })
 
+  socket.on('devices', (devices) => {
+    bw.fromId(1).webContents.send('devices', devices)
+    console.log('get device: ', devices)
+  })
+
   socket.on('disconnect', () => {
     ipcOnline({ value: false, id: null })
     logger.info(`Socket IO Disconnect ${socket.id}`)
   })
 }
 
-export { socket, checkServerAddress, socketIoConnect }
+export { socket, checkServerAddress, connect }

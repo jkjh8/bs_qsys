@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import db from '../db'
-import { socket, socketIoConnect } from '/src-electron/api/socketio'
+import { socket, connect } from '/src-electron/api/socketio'
 
 export default function () {
   ipcMain.handle('onPromise', async (e, args) => {
@@ -19,7 +19,7 @@ export default function () {
           { $set: { value: args.value } },
           { upsert: true }
         )
-        await socketIoConnect()
+        await connect()
         break
       case 'getId':
         rt = await db.findOne({ key: 'id' })
@@ -33,10 +33,10 @@ export default function () {
           { $set: { value: args.value } },
           { upsert: true }
         )
-        socketIoConnect()
+        connect()
         break
       // case 'socketConnect':
-      //   await socketIoConnect()
+      //   await connect()
       //   break
       default:
         console.log('not defined command ' + args.command)

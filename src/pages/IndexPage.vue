@@ -1,18 +1,22 @@
 <script setup>
 import { onMounted } from 'vue'
-import useOnline from 'src/composables/useOnline.js'
+// components
+import DeviceTable from 'src/components/devices/deviceTable'
+// store
+import { useDeviceStore } from 'src/stores/devices.js'
 
-const { chkOnline } = useOnline()
-onMounted(() => {
-  chkOnline()
-})
+async function getDevices() {
+  const r = await API.getDevices()
+  useDeviceStore().updateDevices(r)
+}
+
+onMounted(() => {})
 </script>
 <template>
-  <q-page class="flex flex-center">
-    <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-vertical.svg"
-      style="width: 200px; height: 200px"
-    />
-  </q-page>
+  <div>
+    <div>
+      <q-btn round flat icon="refresh" color="primary" @click="getDevices" />
+    </div>
+    <DeviceTable />
+  </div>
 </template>
