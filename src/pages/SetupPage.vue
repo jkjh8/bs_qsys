@@ -21,11 +21,11 @@ onMounted(() => {})
 
 <style scoped>
 .setup-card {
-  max-width: 90%;
-  min-width: 70%;
-  border: 1px solid #ddd;
+  width: 90%;
+  min-width: 80%;
+  border: 1px solid #eee;
   border-radius: 8px;
   padding: 10px 25px;
-  background: #f3f3f3;
+  background: #fafafa;
 }
 </style>

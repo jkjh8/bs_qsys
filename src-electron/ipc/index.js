@@ -17,6 +17,15 @@ ipcMain.on('start', () => {
   connect()
 })
 
+// command
+ipcMain.on('command', (args) => {
+  switch (args.command) {
+    case 'getDevices':
+      socket.emit('getDevices')
+      break
+  }
+})
+
 ipcMain.handle('getDevices', () => {
   console.log('getDevices')
 

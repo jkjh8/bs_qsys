@@ -3,88 +3,54 @@ import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { v4 as uuidv4 } from 'uuid'
 // components
-import Confirm from 'src/components/dialog/confirmDialog'
+import Dialog from 'src/components/dialog/confirmDialog'
 // composables
 import useNotify from 'src/composables/useNotify'
-import useRules from 'src/composables/usrRules'
 
-const { notifyInfo, notifyError } = useNotify()
-const { required } = useRules()
+const { $nInfo } = useNotify()
 const $q = useQuasar()
 
 const current = ref('')
-const bridgeId = ref('')
 
-const updateId = async () => {
-  try {
-    if (current.value !== bridgeId.value) {
-      const r = await API.onPromise({
-        command: 'updateId',
-        value: current.value
-      })
-      if (r) {
-        bridgeId.value = current.value
-        notifyInfo('updated id')
-      }
-    }
-  } catch (err) {
-    console.error(err)
-    notifyError('update id failed')
-  }
-}
-
-const confirmRefreshId = () => {
+function openDialog() {
   $q.dialog({
-    component: Confirm,
+    component: Dialog,
     componentProps: {
-      title: 'Refresh ID?'
+      icon: 'edit',
+      title: 'Create a new Device ID'
     }
-  }).onOk(() => {
-    current.value = uuidv4()
+  }).onOk(async () => {
+    const uid = uuidv4()
+    const r = await API.onPromise({ command: 'newUid', value: uid })
+    if (r) {
+      current.value = uid
+      $nInfo('Device Uid Updated', 'it will take effect after app restarted')
+    }
   })
 }
 
 onMounted(async () => {
-  const id = await API.onPromise({ command: 'getId' })
-  if (id) {
-    current.value = id.value
-    bridgeId.value = id.value
-  }
+  current.value = await API.onPromise({ command: 'getUid' })
 })
 </script>
 
 <template>
   <div class="row no-wrap justify-between">
-    <div class="row no-wrap">
-      <div class="text-bold sans-font q-mt-sm">ID</div>
-      <q-icon
-        class="cursor-pointer"
-        style="margin: 10px 0px 0px 5px"
-        name="refresh"
-        size="18px"
+    <div class="text-bold sans-font q-mt-sm">ID</div>
+    <div class="row no-wrap items-center q-gutter-sm">
+      <div>{{ current }}</div>
+      <q-btn
+        round
+        flat
+        size="sm"
+        icon="refresh"
         color="primary"
-        @click="confirmRefreshId"
+        @click="openDialog"
+        ><q-tooltip>Edit</q-tooltip></q-btn
       >
-      </q-icon>
     </div>
-    <q-input
-      v-model="current"
-      style="width: 35%; min-width: 200px"
-      outlined
-      dense
-      :rules="[required]"
-      lazy-rules
-    >
-      <template #append>
-        <q-icon
-          :class="current === bridgeId ? 'disabled' : 'cursor-pointer'"
-          name="check_circle"
-          color="primary"
-          @click="updateId"
-        />
-      </template>
-    </q-input>
   </div>
 </template>
 
 <style scoped></style>
+src/composables/useRules

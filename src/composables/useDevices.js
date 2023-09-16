@@ -9,7 +9,7 @@ export default function useDevices() {
   }
 
   function APIDevices() {
-    API.devices((arr) => {
+    API.rtDevices((arr) => {
       devices.value = arr
     })
   }

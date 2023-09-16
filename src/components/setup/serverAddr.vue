@@ -1,62 +1,52 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useQuasar } from 'quasar'
+// components
+import Dialog from 'src/components/dialog/addressDialog'
 // composables
 import useNotify from 'src/composables/useNotify'
-import useRules from 'src/composables/usrRules'
 
-const { notifyInfo, notifyError } = useNotify()
-const { required } = useRules()
+const $q = useQuasar()
+const { $nInfo } = useNotify()
 
-const current = ref('http://localhost')
-const serverAddress = ref('http://localhost')
+const current = ref('http://127.0.0.1')
 
-const updateServerAddress = async () => {
-  try {
-    if (current.value !== serverAddress.value) {
-      const r = await API.onPromise({
-        command: 'updateServerAddress',
-        value: current.value
-      })
-      if (r) {
-        serverAddress.value = current.value
-        notifyInfo('updated server address')
-      }
+function openDialog() {
+  $q.dialog({
+    component: Dialog
+  }).onOk(async (addr) => {
+    console.log(addr)
+    if (addr) {
+      const r = await API.onPromise({ command: 'updateAddr', value: addr })
+      if (r) current.value = addr
+      $nInfo('Server Address updated', 'please restart for new server address')
     }
-  } catch (err) {
-    console.error(err)
-    notifyError('update server address failed')
-  }
+  })
 }
 
 onMounted(async () => {
-  const addr = await API.onPromise({ command: 'getServerAddress' })
-  if (addr) {
-    current.value = addr.value
-    serverAddress.value = addr.value
-  }
+  current.value = await API.onPromise({ command: 'getAddr' })
 })
 </script>
 
 <template>
-  <div class="row no-wrap justify-between">
-    <div class="text-bold sans-font q-mt-sm">Server Address</div>
-    <q-input
-      v-model="current"
-      style="width: 35%; min-width: 200px"
-      outlined
-      dense
-      :rules="[required]"
-      lazy-rules
-    >
-      <template #append>
-        <q-icon
-          :class="current === serverAddress ? 'disabled' : 'cursor-pointer'"
-          name="check_circle"
-          color="primary"
-          @click="updateServerAddress"
-        />
-      </template>
-    </q-input>
+  <div class="row no-wrap justify-between items-center">
+    <div class="text-bold sans-font">Server Address</div>
+    <div class="row items-center q-gutter-x-sm">
+      <div class="sans-font">
+        {{ current }}
+      </div>
+      <q-btn
+        round
+        flat
+        size="sm"
+        icon="edit"
+        color="primary"
+        @click="openDialog"
+      >
+        <q-tooltip>Edit</q-tooltip>
+      </q-btn>
+    </div>
   </div>
 </template>
 

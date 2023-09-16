@@ -1,39 +1,31 @@
 import { ipcMain } from 'electron'
 import db from '../db'
-import { socket, connect } from '/src-electron/api/socketio'
-
+import { chkAddress } from '/src-electron/api/socketio'
+import { getUid } from '/src-electron/api/uid'
 export default function () {
   ipcMain.handle('onPromise', async (e, args) => {
     let rt = null
 
     switch (args.command) {
-      case 'getServerAddress':
-        rt = await db.findOne({ key: 'serveraddress' })
+      case 'getAddr':
+        rt = await chkAddress()
         break
-      case 'updateServerAddress':
-        if (socket.connected) {
-          socket.disconnect()
-        }
+      case 'updateAddr':
         rt = await db.update(
           { key: 'serveraddress' },
           { $set: { value: args.value } },
           { upsert: true }
         )
-        await connect()
         break
-      case 'getId':
-        rt = await db.findOne({ key: 'id' })
+      case 'getUid':
+        rt = await getUid()
         break
-      case 'updateId':
-        if (socket.connected) {
-          socket.disconnect()
-        }
+      case 'newUid':
         rt = await db.update(
-          { key: 'id' },
+          { key: 'uid' },
           { $set: { value: args.value } },
           { upsert: true }
         )
-        connect()
         break
       // case 'socketConnect':
       //   await connect()

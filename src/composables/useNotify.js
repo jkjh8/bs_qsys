@@ -2,7 +2,7 @@ import { useQuasar } from 'quasar'
 
 export default function useNotify() {
   const $q = useQuasar()
-  const notifyInfo = (msg, caption, location) => {
+  const $nInfo = (msg, caption, location) => {
     $q.notify({
       type: 'positive',
       message: msg,
@@ -17,7 +17,7 @@ export default function useNotify() {
       ]
     })
   }
-  const notifyError = (msg, caption, location) => {
+  const $nError = (msg, caption, location) => {
     $q.notify({
       type: 'negative',
       message: msg,
@@ -32,5 +32,5 @@ export default function useNotify() {
       ]
     })
   }
-  return { notifyInfo, notifyError }
+  return { $nInfo, $nError }
 }

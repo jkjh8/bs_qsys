@@ -6,8 +6,7 @@ import DeviceTable from 'src/components/devices/deviceTable'
 import { useDeviceStore } from 'src/stores/devices.js'
 
 async function getDevices() {
-  const r = await API.getDevices()
-  useDeviceStore().updateDevices(r)
+  API.command({ command: 'getDevices' })
 }
 
 onMounted(() => {})

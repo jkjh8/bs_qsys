@@ -23,7 +23,10 @@ contextBridge.exposeInMainWorld('API', {
       fn(...args)
     })
   },
-
+  // Commands
+  command: (args) => {
+    return ipcRenderer.send('command', { ...args })
+  },
   onRequest: (args) => {
     return ipcRenderer.send('onRequest', { ...args })
   },

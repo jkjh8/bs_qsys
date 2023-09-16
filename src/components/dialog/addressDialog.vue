@@ -1,17 +1,15 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
+import useRules from 'src/composables/useRules.js'
 // dialog functions
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent()
 // props
 const props = defineProps({
-  icon: String,
-  iconColor: String,
-  btnColor: String,
-  title: String,
-  caption: String,
-  message: String
+  address: String
 })
+const addr = ref('')
 // emit
 const emit = defineEmits([...useDialogPluginComponent.emits])
 </script>
@@ -19,19 +17,20 @@ const emit = defineEmits([...useDialogPluginComponent.emits])
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card class="q-dialog-plugin border-radius sans-font">
-      <q-card-section class="row no-wrap q-gutter-sm">
+      <q-card-section class="row no-wrap q-gutter-sm items-center">
         <q-icon
-          v-if="icon"
           style="margin-top: 10px"
-          :name="icon"
-          :color="iconColor ? iconColor : 'primary'"
-          size="1.5rem"
+          name="edit"
+          color="primary"
+          size="1.2rem"
         />
-        <div class="text-subtitle1">{{ title }}</div>
+        <div class="text-subtitle1 text-bold">Server Address</div>
       </q-card-section>
 
-      <q-card-section v-if="message">
-        {{ message }}
+      <q-card-section>
+        <div class="q-px-md">
+          <q-input v-model="addr" dense filled></q-input>
+        </div>
       </q-card-section>
       <q-card-actions align="right">
         <div class="q-px-sm q-gutter-x-sm">

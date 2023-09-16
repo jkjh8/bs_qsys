@@ -17,21 +17,6 @@ onBeforeMount(() => {
 })
 onMounted(() => {
   API.start()
-  // window.addEventListener('resize', () => {
-  //   //
-  //   API.windowSizePosition({
-  //     height: window.outerHeight,
-  //     width: window.outerWidth
-  //   })
-  // })
-  // API.onPromise({ command: 'socketConnect' })
-  // API.onResponse((args) => {
-  //   switch (args.key) {
-  //     case 'socketIoConnect':
-  //       onlineStore.updateOnline(args.value)
-  //       break
-  //   }
-  // })
 })
 </script>
 
