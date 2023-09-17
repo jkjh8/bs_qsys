@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useOnlineStore } from '/src/stores/online'
+import { useStatusStore } from '/src/stores/status'
 import { storeToRefs } from 'pinia'
 
 const $r = useRouter()
-const { online } = storeToRefs(useOnlineStore())
+const { status, online } = storeToRefs(useStatusStore())
 
 onMounted(() => {})
 </script>

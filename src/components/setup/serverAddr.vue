@@ -1,14 +1,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { storeToRefs } from 'pinia'
 // components
 import Dialog from 'src/components/dialog/addressDialog'
 // composables
 import useNotify from 'src/composables/useNotify'
+// stores
+import { useStatusStore } from 'src/stores/status.js'
 
 const $q = useQuasar()
 const { $nInfo } = useNotify()
-
+const { serverAddr } = useStatusStore()
 const current = ref('http://127.0.0.1')
 
 function openDialog() {
@@ -17,16 +20,16 @@ function openDialog() {
   }).onOk(async (addr) => {
     console.log(addr)
     if (addr) {
-      const r = await API.onPromise({ command: 'updateAddr', value: addr })
-      if (r) current.value = addr
-      $nInfo('Server Address updated', 'please restart for new server address')
+      const r = await API.onData({ key: 'serveraddress', value: addr })
+      if (r) {
+        $nInfo(
+          'Server Address updated',
+          'please restart for new server address'
+        )
+      }
     }
   })
 }
-
-onMounted(async () => {
-  current.value = await API.onPromise({ command: 'getAddr' })
-})
 </script>
 
 <template>
@@ -34,7 +37,7 @@ onMounted(async () => {
     <div class="text-bold sans-font">Server Address</div>
     <div class="row items-center q-gutter-x-sm">
       <div class="sans-font">
-        {{ current }}
+        {{ serverAddr }}
       </div>
       <q-btn
         round

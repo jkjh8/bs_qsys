@@ -4,16 +4,20 @@ contextBridge.exposeInMainWorld('API', {
   onPromise: async (args) => {
     return await ipcRenderer.invoke('onPromise', { ...args })
   },
-  // open
-  start: () => {
-    return ipcRenderer.send('start')
+  // db
+  onData: async (args) => {
+    return await ipcRenderer.invoke('onData', { ...args })
   },
-  online: async (args) => {
-    return ipcRenderer.send('online', { ...args })
+  // status
+  getStatus: () => {
+    return ipcRenderer.send('getStatus')
   },
-  checkOnlinePromise: async (args) => {
-    return ipcRenderer.invoke('checkOnlinePromise', { ...args })
+  rtStatus: (fn) => {
+    ipcRenderer.on('rtStatus', (e, ...args) => {
+      fn(...args)
+    })
   },
+
   // devices
   getDevices: async () => {
     return await ipcRenderer.invoke('getDevices')

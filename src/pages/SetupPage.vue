@@ -7,7 +7,9 @@ import ServerUuid from 'src/components/setup/serverUuid'
 const serverAddress = ref('http://localhost')
 
 // lifecycle hooks
-onMounted(() => {})
+onMounted(() => {
+  API.getStatus()
+})
 </script>
 
 <template>

@@ -1,7 +1,8 @@
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import path from 'path'
 import os from 'os'
-import db from './db'
+import { initAppFromDb } from './defValues'
+import { connect } from './api/socketio'
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform()
@@ -76,14 +77,20 @@ async function createWindow() {
   // })
 }
 
-app.whenReady().then(async () => {
-  // before create window
-
-  // load default settings
-  // connect socket.io
-  // ...etc
+app.on('ready', async () => {
+  await initAppFromDb()
+  await connect()
   createWindow()
 })
+
+// app.whenReady().then(async () => {
+//   // before create window
+//   await initAppFromDb()
+//   // load default settings
+//   // connect socket.io
+//   // ...etc
+//   createWindow()
+// })
 
 app.on('window-all-closed', () => {
   if (platform !== 'darwin') {

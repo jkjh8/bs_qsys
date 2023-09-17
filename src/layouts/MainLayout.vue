@@ -4,19 +4,15 @@ import { onBeforeMount, onMounted } from 'vue'
 import HomeLogo from 'src/components/layout/homeLogo'
 import ToolbarLinks from 'src/components/layout/toolbarLinks'
 // composables
-import useOnline from 'src/composables/useOnline.js'
-import useDevices from 'src/composables/useDevices.js'
+import useStatus from 'src/composables/useStatus.js'
 // initalization
-const { APIOnline, chkOnlineInterval } = useOnline()
-const { APIDevices } = useDevices()
+const { statusRtChannel } = useStatus()
 // lifecycle hooks
 onBeforeMount(() => {
-  APIOnline()
-  APIDevices()
-  chkOnlineInterval()
+  statusRtChannel()
 })
 onMounted(() => {
-  API.start()
+  API.getStatus()
 })
 </script>
 

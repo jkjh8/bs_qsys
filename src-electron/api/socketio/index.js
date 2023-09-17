@@ -2,7 +2,7 @@ import { BrowserWindow as bw } from 'electron'
 import { io } from 'socket.io-client'
 import db from '/src-electron/db'
 import logger from '/src-electron/logger'
-import { ipcOnline } from '/src-electron/ipc'
+import status, { sendStatus } from '/src-electron/defValues'
 
 let socket
 
@@ -22,28 +22,31 @@ const chkAddress = async () => {
 }
 
 const connect = async () => {
-  const addr = await chkAddress()
-  const apiKey = await db.findOne({ key: 'id' })
   try {
-    socket = io(`${addr}/device`, {
+    socket = io(`http://${status.serverAddr}/device`, {
       transports: ['websocket'],
-      extraHeaders: { apiKey: apiKey.value },
+      extraHeaders: { apiKey: status.uid },
       withCredentials: true,
       autoConnect: true
     })
     socket.on('connect', () => {
-      ipcOnline({ value: true, id: socket.id })
+      status.connected = true
+      status.socketId = socket.id
       logger.info(`Socket IO Connected ${socket.id}`)
+      sendStatus()
     })
 
     socket.on('devices', (devices) => {
-      bw.fromId(1).webContents.send('devices', devices)
+      devices = devices
       console.log('get device: ', devices)
+      sendStatus()
     })
 
     socket.on('disconnect', () => {
-      ipcOnline({ value: false, id: null })
+      status.connected = false
+      status.socketId = null
       logger.info(`Socket IO Disconnect ${socket.id}`)
+      sendStatus()
     })
   } catch (error) {
     logger.error(`socket io connectino error: ${error}`)

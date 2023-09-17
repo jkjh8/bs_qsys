@@ -4,6 +4,7 @@ import logger from '../logger'
 import chkOnline from './chkOnline'
 import onPromise from './promise'
 import { socket, connect } from '/src-electron/api/socketio'
+import status, { sendStatus } from '/src-electron/defValues'
 
 chkOnline()
 
@@ -11,10 +12,26 @@ onPromise()
 // import('./promise')
 import('./windows')
 
-ipcMain.on('start', () => {
-  logger.info('Frontend started')
-  // TODO: add started process
-  connect()
+ipcMain.on('getStatus', () => {
+  sendStatus()
+})
+
+ipcMain.handle('onData', async (args) => {
+  try {
+    const r = await db.update(
+      { key: args.key },
+      { $set: { value: args.value } },
+      { upsert: true }
+    )
+    console.log(r)
+    if (r) {
+      status.serverAddr = args.value
+    }
+    // sendStatus()
+    return r
+  } catch (error) {
+    logger.error(`Data from frontend update failed: ${error}`)
+  }
 })
 
 // command
@@ -31,7 +48,3 @@ ipcMain.handle('getDevices', () => {
 
   socket.emit('getDevices')
 })
-
-export function ipcOnline(args) {
-  bw.fromId(1).webContents.send('online', { ...args })
-}
