@@ -76,7 +76,14 @@ async function createWindow() {
   // })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(async () => {
+  // before create window
+
+  // load default settings
+  // connect socket.io
+  // ...etc
+  createWindow()
+})
 
 app.on('window-all-closed', () => {
   if (platform !== 'darwin') {
