@@ -1,10 +1,13 @@
 <script setup>
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 // components
 import DeviceTable from 'src/components/devices/deviceTable'
+// initialize
+const $r = useRouter()
 
 async function getDevices() {
-  API.command({ command: 'getDevices' })
+  $r.go()
 }
 
 onMounted(() => {
