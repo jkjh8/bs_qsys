@@ -25,7 +25,7 @@ const connect = async () => {
   try {
     socket = io(`http://${status.serverAddr}/device`, {
       transports: ['websocket'],
-      extraHeaders: { apiKey: status.uid },
+      extraHeaders: { apiKey: status.uid, type: 'Q-Sys' },
       withCredentials: true,
       autoConnect: true
     })
@@ -37,9 +37,9 @@ const connect = async () => {
     })
 
     socket.on('devices', (devices) => {
-      devices = devices
+      status.devices = devices
       console.log('get device: ', devices)
-      sendStatus()
+      // sendStatus()
     })
 
     socket.on('disconnect', () => {
@@ -53,4 +53,14 @@ const connect = async () => {
   }
 }
 
-export { socket, chkAddress, connect }
+function sendLogToServer(args) {
+  socket.emit('eventlog', {
+    source: 'Q-Sys Bridge',
+    user: 'Q-Sys Bridge',
+    level: args.level ?? 'info',
+    priority: args.priority,
+    message: args.message
+  })
+}
+
+export { socket, chkAddress, connect, sendLogToServer }

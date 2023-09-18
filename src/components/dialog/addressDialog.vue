@@ -29,7 +29,12 @@ const emit = defineEmits([...useDialogPluginComponent.emits])
 
       <q-card-section>
         <div class="q-px-md">
-          <q-input v-model="addr" dense filled></q-input>
+          <q-input
+            v-model="addr"
+            dense
+            filled
+            @keyup.enter="onDialogOK(addr)"
+          ></q-input>
         </div>
       </q-card-section>
       <q-card-actions align="right">

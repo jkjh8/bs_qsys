@@ -2,18 +2,21 @@
 import { onMounted } from 'vue'
 // components
 import DeviceTable from 'src/components/devices/deviceTable'
-// store
-import { useDeviceStore } from 'src/stores/devices.js'
 
 async function getDevices() {
   API.command({ command: 'getDevices' })
 }
 
-onMounted(() => {})
+onMounted(() => {
+  API.getStatus()
+})
 </script>
 <template>
   <div>
-    <div>
+    <div class="row no-wrap justify-between">
+      <div class="text-bold sans-font" style="font-size: 1.2rem">
+        Q-SYS List
+      </div>
       <q-btn round flat icon="refresh" color="primary" @click="getDevices" />
     </div>
     <DeviceTable />

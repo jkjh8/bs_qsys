@@ -1,9 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('API', {
-  onPromise: async (args) => {
-    return await ipcRenderer.invoke('onPromise', { ...args })
-  },
+  // onPromise: async (args) => {
+  //   return await ipcRenderer.invoke('onPromise', { ...args })
+  // },
   // db
   onData: async (args) => {
     return await ipcRenderer.invoke('onData', { ...args })
@@ -39,7 +39,4 @@ contextBridge.exposeInMainWorld('API', {
       fn(...args)
     })
   }
-  // windowSizePosition: (args) => {
-  //   ipcRenderer.send('windowSizePosition', { ...args })
-  // }
 })

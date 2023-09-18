@@ -12,7 +12,7 @@ onBeforeMount(() => {
   statusRtChannel()
 })
 onMounted(() => {
-  API.getStatus()
+  // API.getStatus()
 })
 </script>
 

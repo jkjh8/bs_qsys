@@ -1,10 +1,11 @@
 import net from 'net'
 import EventEmitter from 'events'
 
-export class Qrc extends EventEmitter {
+export default class Qrc extends EventEmitter {
   constructor(ipaddress) {
     super()
     this.client = net.Socket()
+    // this.client.setTimeout(5000)
     // commands
     this.commands = []
     this.commandInterval = null
@@ -25,18 +26,18 @@ export class Qrc extends EventEmitter {
       this._connected = true
       // connect timout interval start
       this.setConnectionTimeout()
-      this.emit('connect', `Q-SYS connected ${this._ipaddress}`)
+      this.emit('connect', `connected`)
     })
 
     // close and error
     this.client.on('close', () => {
       this._connected = false
-      this.emit('close', `Q-SYS closed ${this._ipaddress}`)
+      this.emit('close', `socket closed`)
     })
 
     this.client.on('timeout', () => {
       this.client.end()
-      this.emit('error', new Error(`Socket Timeout ${this._ipaddress}`))
+      this.emit('error', new Error(`Socket Timeout`))
     })
 
     this.client.on('error', (error) => {
@@ -54,16 +55,17 @@ export class Qrc extends EventEmitter {
         }
         // data added buffer
         this._data = Buffer.concat([
-          this._data >> [],
+          this._data ?? [],
           data.includes(0) ? data.slice(0, data.indexOf(0)) : data
         ])
         // check end data and callback
         if (data.includes(0)) {
           this._completed = true
-          this.parser(JSON.parse(this._data))
+          // this.parser(JSON.parse(this._data))
+          this.emit('data', JSON.parse(this._data))
         }
-      } catch (error) {
-        this.emit('error', `Q-SYS Data receive Error ${this._ipaddress}`)
+      } catch (err) {
+        this.emit('error', `Q-SYS Data receive Error ${err}`)
       }
     })
   }
@@ -95,7 +97,7 @@ export class Qrc extends EventEmitter {
           break
       }
     } catch (error) {
-      this.emit('error', `Q-SYS Data parser Error ${this._ipaddress}`)
+      this.emit('error', `Q-SYS Data parser Error`)
     }
   }
 
@@ -112,7 +114,7 @@ export class Qrc extends EventEmitter {
         this.emit('error', err)
       }
     } else {
-      return this.emit('error', `${this._ipaddress} socket is not connected`)
+      return this.emit('error', `socket is not connected`)
     }
   }
   addCommands(msg) {
@@ -131,20 +133,16 @@ export class Qrc extends EventEmitter {
   }
   connect() {
     if (!this._connected) {
-      this.connectInterval = setInterval(() => {
-        if (this._connected) {
-          clearInterval(this.connectInterval)
-          this.connectInterval = null
-        } else {
-          try {
-            this.client.connect({ port: 1710, host: this._ipaddress })
-          } catch (err) {
-            this.emit('error', `socket connect error: ${this._ipaddress}`)
-          }
-        }
-      }, 5000)
+      try {
+        this.client.connect({
+          port: 1710,
+          host: this._ipaddress
+        })
+      } catch (err) {
+        this.emit('error', `socket connect error ${err}`)
+      }
     } else {
-      this.emit('error', `${this._ipaddress} is already connected`)
+      this.emit('error', `already connected`)
     }
   }
   disconnect() {
@@ -170,7 +168,7 @@ export class Qrc extends EventEmitter {
           clearInterval(this._connectionTimer)
           this._connectionTimer = null
         }
-      })
+      }, 1000)
     }
   }
 }

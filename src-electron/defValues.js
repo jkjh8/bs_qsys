@@ -11,23 +11,26 @@ const status = {
 }
 
 async function initAppFromDb() {
-  try {
-    const data = await db.find({})
-    for (const args of data) {
-      switch (args.key) {
-        case 'serveraddress':
-          logger.info(`Server address: ${args.value}`)
-          status.serverAddr = args.value
-          break
-        case 'uid':
-          logger.info(`Device UID: ${args.value}`)
-          status.uid = args.value
-          break
+  return new Promise(async function (resolve, reject) {
+    try {
+      const data = await db.find({})
+      for (const args of data) {
+        switch (args.key) {
+          case 'serveraddress':
+            logger.info(`Server address: ${args.value}`)
+            status.serverAddr = args.value
+            break
+          case 'uid':
+            logger.info(`Device UID: ${args.value}`)
+            status.uid = args.value
+            break
+        }
       }
+      resolve(status)
+    } catch (error) {
+      reject(error)
     }
-  } catch (error) {
-    logger.error(`init data from db error ${error}`)
-  }
+  })
 }
 
 function sendStatus() {

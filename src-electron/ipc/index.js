@@ -1,44 +1,39 @@
 import { BrowserWindow as bw, ipcMain } from 'electron'
 import db from '../db'
 import logger from '../logger'
-import chkOnline from './chkOnline'
-import onPromise from './promise'
-import { socket, connect } from '/src-electron/api/socketio'
-import status, { sendStatus } from '/src-electron/defValues'
-
-chkOnline()
-
-onPromise()
-// import('./promise')
-import('./windows')
+import { socket } from '/src-electron/api/socketio'
+import { initAppFromDb, sendStatus } from '/src-electron/defValues'
+import { addQsys, getPa } from '../qsys'
 
 ipcMain.on('getStatus', () => {
   sendStatus()
 })
 
-ipcMain.handle('onData', async (args) => {
+ipcMain.handle('onData', async (e, args) => {
   try {
+    console.log(args)
     const r = await db.update(
       { key: args.key },
       { $set: { value: args.value } },
       { upsert: true }
     )
-    console.log(r)
-    if (r) {
-      status.serverAddr = args.value
-    }
-    // sendStatus()
-    return r
+    return initAppFromDb()
   } catch (error) {
     logger.error(`Data from frontend update failed: ${error}`)
   }
 })
 
 // command
-ipcMain.on('command', (args) => {
+ipcMain.on('command', (e, args) => {
   switch (args.command) {
     case 'getDevices':
       socket.emit('getDevices')
+      break
+    case 'connectQsys':
+      addQsys(JSON.parse(args.value))
+      break
+    case 'getPa':
+      getPa(JSON.parse(args.value))
       break
   }
 })

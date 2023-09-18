@@ -11,7 +11,7 @@ const $r = useRouter()
 
 <template>
   <div class="row no-wrap items-center">
-    <div class="btn cursor-pointer" @click="$r.push('/info')">Info</div>
+    <!-- <div class="btn cursor-pointer" @click="$r.push('/info')">Info</div> -->
     <div class="btn cursor-pointer" @click="$r.push('/setup')">Setup</div>
   </div>
 </template>

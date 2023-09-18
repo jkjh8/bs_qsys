@@ -1,44 +1,26 @@
 <script setup>
+import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useDeviceStore } from 'src/stores/devices.js'
+import { useStatusStore } from 'src/stores/status.js'
+import columns from './columns.js'
+// initialize
+const { status } = storeToRefs(useStatusStore())
+// functions
+function qsysConnect(args) {
+  API.command({ command: 'connectQsys', value: JSON.stringify(args) })
+}
 
-const { devices } = storeToRefs(useDeviceStore())
+function qsysGetPa(args) {
+  API.command({ command: 'getPa', value: JSON.stringify(args) })
+}
+
+onMounted(() => {
+  // API.getStatus()
+})
 </script>
 
 <template>
-  <q-table
-    :columns="[
-      {
-        name: 'name',
-        label: 'Name',
-        align: 'center',
-        field: 'name',
-        sortable: true
-      },
-      {
-        name: 'deviceId',
-        label: 'Device ID',
-        align: 'center',
-        field: 'deviceId',
-        sortable: true
-      },
-      {
-        name: 'ipaddress',
-        label: 'IP Address',
-        align: 'center',
-        field: 'ipaddress',
-        sortable: true
-      },
-      {
-        name: 'deviceType',
-        label: 'Type',
-        align: 'center',
-        field: 'deviceType',
-        sortable: true
-      }
-    ]"
-    :rows="devices"
-  >
+  <q-table :columns="columns" :rows="status.devices">
     <template #body="props">
       <q-tr :props="props">
         <q-td key="name" :props="props">
@@ -55,6 +37,24 @@ const { devices } = storeToRefs(useDeviceStore())
         <q-td key="deviceType" :props="props">
           <div>{{ props.row.deviceType.deviceType }}</div>
           <div class="caption">{{ props.row.deviceType.model }}</div>
+        </q-td>
+        <q-td key="actions" :props="props">
+          <div>
+            <q-btn
+              round
+              flat
+              icon="link"
+              color="primary"
+              @click="qsysConnect(props.row)"
+            ></q-btn>
+            <q-btn
+              round
+              flat
+              icon="refresh"
+              color="primary"
+              @click="qsysGetPa(props.row)"
+            ></q-btn>
+          </div>
         </q-td>
       </q-tr>
     </template>

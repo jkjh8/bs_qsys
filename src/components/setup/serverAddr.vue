@@ -11,8 +11,7 @@ import { useStatusStore } from 'src/stores/status.js'
 
 const $q = useQuasar()
 const { $nInfo } = useNotify()
-const { serverAddr } = useStatusStore()
-const current = ref('http://127.0.0.1')
+const { status } = storeToRefs(useStatusStore())
 
 function openDialog() {
   $q.dialog({
@@ -22,6 +21,7 @@ function openDialog() {
     if (addr) {
       const r = await API.onData({ key: 'serveraddress', value: addr })
       if (r) {
+        status.value = r
         $nInfo(
           'Server Address updated',
           'please restart for new server address'
@@ -37,7 +37,7 @@ function openDialog() {
     <div class="text-bold sans-font">Server Address</div>
     <div class="row items-center q-gutter-x-sm">
       <div class="sans-font">
-        {{ serverAddr }}
+        {{ status.serverAddr }}
       </div>
       <q-btn
         round
