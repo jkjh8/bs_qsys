@@ -25,7 +25,7 @@ const connect = async () => {
   try {
     socket = io(`http://${status.serverAddr}/device`, {
       transports: ['websocket'],
-      extraHeaders: { apiKey: status.uid, type: 'Q-Sys' },
+      extraHeaders: { apiKey: status.uid, type: 'q-sys' },
       withCredentials: true,
       autoConnect: true
     })

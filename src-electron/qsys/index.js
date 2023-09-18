@@ -9,46 +9,72 @@ function addQsys(args) {
   const { deviceId, ipaddress } = args
   qsys[deviceId] = new Qrc(ipaddress)
   qsys[deviceId].on('connect', (msg) => {
-    logger.info(`qsys device connected ${args.name} ${deviceId} ${ipaddress}`)
+    logger.info(
+      `qsys device connected -- ${args.name} ${deviceId} ${ipaddress}`
+    )
     sendLogToServer({
-      message: `Q-Sys Device Connected ${args.name} ${deviceId} ${ipaddress}`
+      message: `Q-Sys Device Connected -- ${args.name} ${deviceId} ${ipaddress}`
     })
   })
-  qsys[deviceId].on('data', (msg) => {
-    console.log('device message', msg)
+  qsys[deviceId].on('data', (data) => {
+    dataProcess(deviceId, data)
   })
   qsys[deviceId].on('error', (err) => {
     logger.error(
-      `qsys device error: ${args.name} ${deviceId} ${ipaddress} ${err}`
+      `qsys device error ${err} -- ${args.name} ${deviceId} ${ipaddress}`
     )
     sendLogToServer({
       level: 'error',
-      message: `Q-Sys device error: ${args.name} ${deviceId} ${ipaddress} ${err}`
+      message: `Q-Sys device error ${err} -- ${args.name} ${deviceId} ${ipaddress} ${err}`
     })
   })
   qsys[deviceId].on('close', () => {
     logger.warn(
-      `qsys device disconnected ${args.name} ${deviceId} ${ipaddress}`
+      `qsys device disconnected -- ${args.name} ${deviceId} ${ipaddress}`
     )
     sendLogToServer({
-      message: `Q-Sys Device Disconnected ${args.name} ${deviceId} ${ipaddress}`
+      message: `Q-Sys Device Disconnected -- ${args.name} ${deviceId} ${ipaddress}`
     })
   })
   qsys[deviceId].connect()
 }
 
-function sendCommandQsys(args) {
-  const { deviceId, command } = args
+function sendCommandQsys(args, command) {
+  const { deviceId, name, ipaddress } = args
+  if (qsys[deviceId]) {
+    qsys[deviceId].addCommands(command)
+  } else {
+    sendLogToServer({
+      level: 'error',
+      message: `Q-Sys Not connected, reject ${command} -- ${name} ${deviceId} ${ipaddress}`
+    })
+  }
 }
 
 function getPa(args) {
-  const { deviceId } = args
-  qsys[deviceId].addCommands({
-    id: 'getPa',
-    method: 'Component.GetControls',
-    params: {
-      Name: 'PA'
-    }
-  })
+  const { deviceId, ipaddress } = args
+  if (qsys[deviceId]) {
+    qsys[deviceId].addCommands({
+      id: 'getPa',
+      method: 'Component.GetControls',
+      params: {
+        Name: 'PA'
+      }
+    })
+  } else {
+    sendLogToServer({
+      level: 'error',
+      message: `Q-Sys Not connected, reject getStatus command -- ${args.name} ${deviceId} ${ipaddress}`
+    })
+  }
 }
-export { qsys, addQsys, getPa, sendCommandQsys }
+
+function dataProcess(deviceId, data) {
+  switch (data.id) {
+    case 'getPa':
+      qsysData[deviceId].PA = data.Result
+      break
+  }
+  socket.emit('qsysData', qsysData)
+}
+export { qsys, addQsys, getPa, sendCommandQsys, dataProcess }

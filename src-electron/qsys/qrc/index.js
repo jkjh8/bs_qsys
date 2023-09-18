@@ -117,7 +117,10 @@ export default class Qrc extends EventEmitter {
       return this.emit('error', `socket is not connected`)
     }
   }
+  // command array
   addCommands(msg) {
+    if (!this._connected)
+      return this.emit('error', `socket is not connected ${msg}`)
     this.commands.push(msg)
     if (!this.commandInterval) {
       this.commandInterval = setInterval(() => {
