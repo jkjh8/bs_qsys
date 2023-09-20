@@ -78,8 +78,8 @@ async function createWindow() {
 }
 
 app.on('ready', async () => {
-  await initAppFromDb()
-  await connect()
+  // await initAppFromDb()
+  // await connect()
   createWindow()
 })
 

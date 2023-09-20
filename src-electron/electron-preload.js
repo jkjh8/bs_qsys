@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('API', {
   onData: async (args) => {
     return await ipcRenderer.invoke('onData', { ...args })
   },
+  commandPromise: async (args) => {
+    return await ipcRenderer.invoke('commandPromise', { ...args })
+  },
   // status
   getStatus: () => {
     return ipcRenderer.send('getStatus')

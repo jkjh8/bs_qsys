@@ -1,18 +1,23 @@
 <script setup>
 import { onBeforeMount, onMounted } from 'vue'
+import { useQuasar } from 'quasar'
 // components
 import HomeLogo from 'src/components/layout/homeLogo'
 import ToolbarLinks from 'src/components/layout/toolbarLinks'
 // composables
 import useStatus from 'src/composables/useStatus.js'
 // initalization
+const $q = useQuasar()
 const { statusRtChannel } = useStatus()
+
 // lifecycle hooks
 onBeforeMount(() => {
   statusRtChannel()
 })
 onMounted(() => {
   // API.getStatus()
+  const r = API.commandPromise({ command: 'initVal' })
+  console.log(r)
 })
 </script>
 
