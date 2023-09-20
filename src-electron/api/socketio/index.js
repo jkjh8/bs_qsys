@@ -3,8 +3,9 @@ import { io } from 'socket.io-client'
 import db from '/src-electron/db'
 import logger from '/src-electron/logger'
 import status, { sendStatus } from '/src-electron/defValues'
+import { commands } from './commands'
 
-let socket
+let socket = null
 
 const chkAddress = async () => {
   const r = await db.findOne({ key: 'serveraddress' })
@@ -22,45 +23,62 @@ const chkAddress = async () => {
 }
 
 const connect = async () => {
-  try {
-    socket = io(`http://${status.serverAddr}/device`, {
-      transports: ['websocket'],
-      extraHeaders: { apiKey: status.uid, type: 'q-sys' },
-      withCredentials: true,
-      autoConnect: true
-    })
-    socket.on('connect', () => {
-      status.connected = true
-      status.socketId = socket.id
-      logger.info(`Socket IO Connected ${socket.id}`)
-      sendStatus()
-    })
-
-    socket.on('devices', (devices) => {
-      status.devices = devices
-      console.log('get device: ', devices)
-      // sendStatus()
-    })
-
-    socket.on('disconnect', () => {
-      status.connected = false
-      status.socketId = null
-      logger.info(`Socket IO Disconnect ${socket.id}`)
-      sendStatus()
-    })
-  } catch (error) {
-    logger.error(`socket io connectino error: ${error}`)
-  }
+  return socket.connect()
 }
 
-function sendLogToServer(args) {
-  socket.emit('eventlog', {
-    source: 'Q-Sys Bridge',
-    user: 'Q-Sys Bridge',
-    level: args.level ?? 'info',
-    priority: args.priority,
-    message: args.message
+function initSocket() {
+  return new Promise(async (resolve, reject) => {
+    if (socket) {
+      resolve(socket)
+    }
+    let addr, uid
+    try {
+      addr = await db.findOne({ key: 'serveraddress' })
+      uid = await db.findOne({ key: 'uid' })
+    } catch (error) {
+      reject(error)
+    }
+    if (!uid) {
+      reject(new Error('uid not found'))
+    }
+    socket = io(
+      `http://${addr && addr.value ? addr.value : '127.0.0.1'}/qsys`,
+      {
+        transports: ['websocket'],
+        extraHeaders: { uid: uid.value, type: 'qsys' },
+        withCredentials: true,
+        autoConnect: true
+      }
+    )
+
+    socket.on('connect', () => {
+      bw.fromId(1).webContents.send('online', true)
+      logger.info(`Socket IO Connected: ${socket.id}`)
+    })
+
+    socket.on('disconnect', (reason) => {
+      bw.fromId(1).webContents.send('online', false)
+      logger.info(`Socket IO Disconnected: ${reason}`)
+    })
+
+    socket.on('data', (data) => {
+      commands(data)
+    })
+    resolve(socket)
   })
 }
 
-export { socket, chkAddress, connect, sendLogToServer }
+function sendLogToServer(args) {
+  socket.emit('data', {
+    command: 'logger',
+    value: {
+      source: 'Q-Sys Bridge',
+      user: 'Q-Sys Bridge',
+      level: args.level ?? 'info',
+      priority: args.priority,
+      message: args.message
+    }
+  })
+}
+
+export { socket, chkAddress, initSocket, connect, sendLogToServer }

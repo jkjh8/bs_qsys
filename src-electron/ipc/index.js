@@ -1,8 +1,8 @@
 import { BrowserWindow as bw, ipcMain } from 'electron'
 import db from '../db'
 import logger from '../logger'
-import { socket } from '/src-electron/api/socketio'
-import { initAppFromDb, sendStatus } from '/src-electron/defValues'
+import { socket, initSocket, connect } from '/src-electron/api/socketio'
+import status, { initAppFromDb, sendStatus } from '/src-electron/defValues'
 import { addQsys, getPa } from '../qsys'
 
 ipcMain.on('getStatus', () => {
@@ -11,8 +11,7 @@ ipcMain.on('getStatus', () => {
 
 ipcMain.handle('onData', async (e, args) => {
   try {
-    console.log(args)
-    const r = await db.update(
+    await db.update(
       { key: args.key },
       { $set: { value: args.value } },
       { upsert: true }
@@ -23,9 +22,24 @@ ipcMain.handle('onData', async (e, args) => {
   }
 })
 
+ipcMain.handle('getData', async (e, args) => {
+  try {
+    const r = await db.findOne({ key: args.key })
+    return r
+  } catch (error) {
+    logger.error(`get data from database failed: ${error}`)
+  }
+})
+
 // command
-ipcMain.on('command', (e, args) => {
+ipcMain.handle('command', async (e, args) => {
+  let rt = null
   switch (args.command) {
+    case 'online':
+      if (socket) {
+        rt = socket.connected
+      }
+      break
     case 'getDevices':
       socket.emit('getDevices')
       break
@@ -35,6 +49,20 @@ ipcMain.on('command', (e, args) => {
     case 'getPa':
       getPa(JSON.parse(args.value))
       break
+    case 'initVal':
+      rt = await initAppFromDb()
+      break
+    case 'connect':
+      try {
+        await initSocket(status.serverAddr, status.uid)
+        rt = status
+      } catch (error) {
+        logger.error(`socket io connection error: ${error}`)
+      }
+      break
+  }
+  if (rt) {
+    return rt
   }
 })
 

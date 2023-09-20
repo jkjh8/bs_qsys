@@ -1,10 +1,11 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useStatusStore } from 'src/stores/status.js'
 import columns from './columns.js'
+// stores
+import { useDeviceStore } from 'src/stores/devices'
 // initialize
-const { status } = storeToRefs(useStatusStore())
+const { devices } = storeToRefs(useDeviceStore())
 // functions
 function qsysConnect(args) {
   API.command({ command: 'connectQsys', value: JSON.stringify(args) })
@@ -20,7 +21,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-table :columns="columns" :rows="status.devices">
+  <q-table :columns="columns" :rows="devices">
     <template #body="props">
       <q-tr :props="props">
         <q-td key="name" :props="props">

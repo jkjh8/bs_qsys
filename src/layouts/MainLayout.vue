@@ -5,19 +5,19 @@ import { useQuasar } from 'quasar'
 import HomeLogo from 'src/components/layout/homeLogo'
 import ToolbarLinks from 'src/components/layout/toolbarLinks'
 // composables
-import useStatus from 'src/composables/useStatus.js'
+// stores
+import { useDeviceStore } from 'src/stores/devices'
 // initalization
 const $q = useQuasar()
-const { statusRtChannel } = useStatus()
 
 // lifecycle hooks
-onBeforeMount(() => {
-  statusRtChannel()
-})
-onMounted(() => {
+onMounted(async () => {
   // API.getStatus()
-  const r = API.commandPromise({ command: 'initVal' })
-  console.log(r)
+  $q.loading.show()
+  // await API.command({ command: 'initVal' })
+  await API.command({ command: 'connect' })
+  useDeviceStore().init()
+  $q.loading.hide()
 })
 </script>
 

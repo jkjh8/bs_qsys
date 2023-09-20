@@ -1,13 +1,24 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStatusStore } from '/src/stores/status'
-import { storeToRefs } from 'pinia'
 
 const $r = useRouter()
-const { status, online } = storeToRefs(useStatusStore())
+const online = ref(false)
 
-onMounted(() => {})
+onBeforeMount(() => {
+  API.online((value) => {
+    online.value = value
+  })
+})
+
+onMounted(async () => {
+  if (!online.value) {
+    const r = await API.command({ command: 'online' })
+    if (r) {
+      online.value = true
+    }
+  }
+})
 </script>
 
 <template>

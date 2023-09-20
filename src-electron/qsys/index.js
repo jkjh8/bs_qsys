@@ -29,7 +29,7 @@ function addQsys(args) {
     )
     sendLogToServer({
       level: 'error',
-      message: `Q-Sys device error ${err} -- ${args.name} ${deviceId} ${ipaddress} ${err}`
+      message: `Q-Sys device error ${err} -- ${args.name} ${deviceId} ${ipaddress}`
     })
   })
   qsys[deviceId].on('close', () => {

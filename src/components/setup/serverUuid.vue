@@ -2,21 +2,18 @@
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { v4 as uuidv4 } from 'uuid'
-import { storeToRefs } from 'pinia'
 import useClipboard from 'vue-clipboard3'
 // components
 import Dialog from 'src/components/dialog/confirmDialog'
 // composables
 import useNotify from 'src/composables/useNotify'
 // stores
-import { useStatusStore } from 'src/stores/status.js'
 
 // initialize
 const { $nInfo } = useNotify()
 const $q = useQuasar()
-const { status } = storeToRefs(useStatusStore())
-
-const current = ref('')
+// variables
+const uid = ref('')
 
 function openDialog() {
   $q.dialog({
@@ -26,22 +23,29 @@ function openDialog() {
       title: 'Create a new Device ID'
     }
   }).onOk(async () => {
-    const uid = uuidv4()
-    const r = await API.onData({ key: 'uid', value: uid })
-    if (r) {
-      status.value = r
+    try {
+      const uuid = uuidv4()
+      await API.onData({ key: 'uid', value: uuid })
+      await getUid()
       $nInfo('Device Uid Updated', 'it will take effect after app restarted')
+    } catch (error) {
+      $nError('Device ID update failed')
     }
   })
 }
 
 async function clipboardCopy() {
-  await useClipboard().toClipboard(status.value.uid)
+  await useClipboard().toClipboard(uid.value)
   $nInfo('Uid copy to clipboard')
 }
-
+async function getUid() {
+  const r = await API.getData({ key: 'uid' })
+  if (r && r.value) {
+    uid.value = r.value
+  }
+}
 onMounted(async () => {
-  current.value = await API.onPromise({ command: 'getUid' })
+  await getUid()
 })
 </script>
 
@@ -49,7 +53,7 @@ onMounted(async () => {
   <div class="row no-wrap justify-between">
     <div class="text-bold sans-font q-mt-sm">ID</div>
     <div class="row no-wrap items-center q-gutter-sm">
-      <div>{{ status.uid }}</div>
+      <div>{{ uid }}</div>
       <div>
         <q-btn
           round

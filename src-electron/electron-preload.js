@@ -8,8 +8,8 @@ contextBridge.exposeInMainWorld('API', {
   onData: async (args) => {
     return await ipcRenderer.invoke('onData', { ...args })
   },
-  commandPromise: async (args) => {
-    return await ipcRenderer.invoke('commandPromise', { ...args })
+  getData: async (args) => {
+    return await ipcRenderer.invoke('getData', { ...args })
   },
   // status
   getStatus: () => {
@@ -32,10 +32,16 @@ contextBridge.exposeInMainWorld('API', {
   },
   // Commands
   command: (args) => {
-    return ipcRenderer.send('command', { ...args })
+    return ipcRenderer.invoke('command', { ...args })
   },
   onRequest: (args) => {
     return ipcRenderer.send('onRequest', { ...args })
+  },
+
+  online: (fn) => {
+    ipcRenderer.on('online', (e, ...args) => {
+      fn(...args)
+    })
   },
   onResponse: (fn) => {
     ipcRenderer.on('onResponse', (e, ...args) => {
