@@ -5,7 +5,7 @@ export default class Qrc extends EventEmitter {
   constructor(ipaddress) {
     super()
     this.client = net.Socket()
-    // this.client.setEncoding('utf8')
+    this.client.setEncoding('utf8')
     // this.client.setTimeout(5000)
     // commands
     this.commands = []
@@ -55,13 +55,35 @@ export default class Qrc extends EventEmitter {
     // on data
     this.client.on('data', (data) => {
       try {
-        if (data.includes(0)) {
-          this.data = Buffer.concat([this.data, data.slice(0, data.indexOf(0))])
-          this.emit('data', JSON.parse(this.data))
-          this.data = Buffer.alloc(0)
-        } else {
-          this.data = Buffer.concat([this.data, data])
-        }
+        // let start = 0,
+        //   end,
+        //   idx = 0
+        // for (let i = 0; i < data.length; i++) {
+        //   if (data[i] === 0) {
+        //     console.log(i)
+        //   }
+        // }
+        console.log(data.split(0))
+        // console.log(data)
+        // console.log(data[data.length - 2])
+        // if (data[data.length - 2] === '}') {
+        //   this.emit('data', JSON.parse(data.slice(0, data.length - 1)))
+        // }
+        // this.data = this.data + ' ' + data.slice(0, data.length - 1)
+        // if (data.includes(0)) {
+        //   this.data = Buffer.concat([this.data, data.slice(0, data.indexOf(0))])
+        //   console.log(data[data.length])
+        //   this.emit('data', JSON.parse(this.data))
+        //   this.data = Buffer.alloc(0)
+        //   if (data.length > data.indexOf(0)) {
+        //     this.data = Buffer.concat([
+        //       this.data,
+        //       data.slice(data.indexOf(0), data.length - 1)
+        //     ])
+        //   }
+        // } else {
+        //   this.data = Buffer.concat([this.data, data])
+        // }
       } catch (err) {
         this.emit('error', `Q-SYS Data receive Error ${err}`)
       }

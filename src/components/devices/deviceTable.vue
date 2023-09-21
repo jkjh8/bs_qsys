@@ -18,6 +18,9 @@ function qsysGetPa(args) {
 function qsysUpload(args) {
   API.command({ command: 'upload', value: JSON.stringify(args) })
 }
+function qsysMessage(args) {
+  API.command({ command: 'speak', value: JSON.stringify(args) })
+}
 onMounted(() => {
   // API.getStatus()
 })
@@ -64,6 +67,13 @@ onMounted(() => {
               icon="upload"
               color="primary"
               @click="qsysUpload(props.row)"
+            />
+            <q-btn
+              round
+              flat
+              icon="play_arrow"
+              color="primary"
+              @click="qsysMessage(props.row)"
             />
           </div>
         </q-td>

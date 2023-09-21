@@ -5,6 +5,7 @@ import { socket, initSocket, connect } from '/src-electron/api/socketio'
 import status, { initAppFromDb, sendStatus } from '/src-electron/defValues'
 import { addQsys, getPa } from '../qsys'
 import { uploadFile, deleteFile } from '/src-electron/qsys/functions/files'
+import { paMessage, paSetZoneStatus } from '../qsys/functions'
 
 ipcMain.on('getStatus', () => {
   sendStatus()
@@ -47,8 +48,12 @@ ipcMain.handle('command', async (e, args) => {
     case 'connectQsys':
       addQsys(JSON.parse(args.value))
       break
+    case 'speak':
+      paMessage(JSON.parse(args.value))
+      break
     case 'getPa':
-      getPa(JSON.parse(args.value))
+      // getPa(JSON.parse(args.value))
+      paSetZoneStatus(JSON.parse(args.value))
       break
     case 'upload':
       const data = JSON.parse(args.value)
@@ -56,7 +61,6 @@ ipcMain.handle('command', async (e, args) => {
         await uploadFile({
           ...data,
           filepath: '',
-          folder: 'examples',
           filename: 'Pandas Dream.wav'
         })
       )

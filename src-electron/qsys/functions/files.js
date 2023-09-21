@@ -1,29 +1,56 @@
+import fs from 'fs'
+import path from 'path'
 import https from 'https'
 import axios from 'axios'
-import db from '/src-electron/db'
-import path from 'path'
-import fs from 'fs'
 import FormData from 'form-data'
+import db from '/src-electron/db'
 
 const agent = new https.Agent({
   rejectUnauthorized: false
 })
 
 async function getToken(args) {
+  const { ipaddress, username, password } = args
   const r = await axios.post(
-    `https://${args.ipaddress}/api/v0/logon`,
+    `https://${ipaddress}/api/v0/logon`,
     {
-      username: args.username,
-      password: args.password
+      username,
+      password
     },
     { httpsAgent: agent }
   )
   return r.data
 }
 
+async function getMeta(args) {
+  try {
+    const { ipaddress, folder, filename } = args
+    const url = `https://${ipaddress}/api/v0/cores/self/media/Messages${
+      folder ? '/' + folder : ''
+    }/${filename}`
+    const r = await axios.get(url, { httpsAgent: agent })
+    return r.data
+  } catch (err) {
+    return err
+  }
+}
+
+async function makeFolder(args) {
+  try {
+    const { ipaddress, folder, foldername } = args
+    const url = `https://${ipaddress}/api/v0/cores/self/media/Messages${
+      folder ? '/' + folder : ''
+    }`
+    const r = await axios.post(url, { name: foldername }, { httpsAgent: agent })
+    return r.data
+  } catch (err) {
+    return err
+  }
+}
+
 async function getFiles(args) {
   const { ipaddress, folder } = args
-  const url = `https://${ipaddress}/api/v0/cores/self/media/Audio${
+  const url = `https://${ipaddress}/api/v0/cores/self/media/Messages${
     folder ? '/' + folder : ''
   }`
   const r = await axios.get(url, { httpsAgent: agent })
@@ -46,7 +73,7 @@ async function uploadFile(args) {
     const formdata = new FormData()
     formdata.append('media', file)
     // make url
-    const url = `https://${ipaddress}/api/v0/cores/self/media/Audio${
+    const url = `https://${ipaddress}/api/v0/cores/self/media/Messages${
       folder ? '/' + folder : ''
     }`
     // request
@@ -64,7 +91,7 @@ async function deleteFile(args) {
   try {
     // variables
     const { ipaddress, folder, filename } = args
-    const url = `https://${ipaddress}/api/v0/cores/self/media/Audio${
+    const url = `https://${ipaddress}/api/v0/cores/self/media/Messages${
       folder ? '/' + folder : ''
     }/${encodeURI(filename)}`
     console.log
@@ -75,4 +102,4 @@ async function deleteFile(args) {
   }
 }
 
-export { getToken, getFiles, uploadFile, deleteFile }
+export { getToken, getMeta, makeFolder, getFiles, uploadFile, deleteFile }
