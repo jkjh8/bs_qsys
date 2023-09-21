@@ -1,6 +1,7 @@
-import { app, BrowserWindow, nativeTheme } from 'electron'
+import { app, BrowserWindow, nativeTheme, protocol } from 'electron'
 import path from 'path'
 import os from 'os'
+import logger from './logger'
 import { initAppFromDb } from './defValues'
 import { initSocket } from './api/socketio'
 
@@ -80,6 +81,17 @@ async function createWindow() {
 app.on('ready', async () => {
   // await initAppFromDb()
   // await connect()
+  logger.info('Local file protocol registered')
+  protocol.registerFileProtocol('file', (req, cb) => {
+    console.log('call file path', req.url)
+    const pathname = decodeURIComponent(req.url.replace('file://', ''))
+    console.log(fs.existsSync(pathname))
+    try {
+      cb(pathname)
+    } catch (error) {
+      logger.error(`Error registering file protocol ${error}`)
+    }
+  })
   createWindow()
 })
 

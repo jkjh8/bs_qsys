@@ -15,6 +15,9 @@ function qsysGetPa(args) {
   API.command({ command: 'getPa', value: JSON.stringify(args) })
 }
 
+function qsysUpload(args) {
+  API.command({ command: 'upload', value: JSON.stringify(args) })
+}
 onMounted(() => {
   // API.getStatus()
 })
@@ -55,6 +58,13 @@ onMounted(() => {
               color="primary"
               @click="qsysGetPa(props.row)"
             ></q-btn>
+            <q-btn
+              round
+              flat
+              icon="upload"
+              color="primary"
+              @click="qsysUpload(props.row)"
+            />
           </div>
         </q-td>
       </q-tr>

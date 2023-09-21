@@ -2,45 +2,27 @@ import Qrc from './qrc'
 import logger from '/src-electron/logger'
 import { sendLogToServer } from '/src-electron/api/socketio'
 import { socket } from '/src-electron/api/socketio'
+import initQsys from './init'
+import { getToken, getFiles } from './functions/files'
 
 // 1: getPa
 
 let qsys = {}
 let qsysData = {}
 
-function addQsys(args) {
-  const { deviceId, ipaddress } = args
-  qsys[deviceId] = new Qrc(ipaddress)
-  qsys[deviceId].on('connect', (msg) => {
-    qsysData[deviceId] = {}
-    logger.info(
-      `qsys device connected -- ${args.name} ${deviceId} ${ipaddress}`
-    )
-    sendLogToServer({
-      message: `Q-Sys Device Connected -- ${args.name} ${deviceId} ${ipaddress}`
-    })
-  })
-  qsys[deviceId].on('data', (data) => {
-    dataProcess(deviceId, data)
-  })
-  qsys[deviceId].on('error', (err) => {
-    logger.error(
-      `qsys device error ${err} -- ${args.name} ${deviceId} ${ipaddress}`
-    )
-    sendLogToServer({
-      level: 'error',
-      message: `Q-Sys device error ${err} -- ${args.name} ${deviceId} ${ipaddress}`
-    })
-  })
-  qsys[deviceId].on('close', () => {
-    logger.warn(
-      `qsys device disconnected -- ${args.name} ${deviceId} ${ipaddress}`
-    )
-    sendLogToServer({
-      message: `Q-Sys Device Disconnected -- ${args.name} ${deviceId} ${ipaddress}`
-    })
-  })
-  qsys[deviceId].connect()
+async function addQsys(args) {
+  qsys[args.deviceId] = initQsys(args)
+  qsysData[args.deviceId] = {}
+  await getFiles(args)
+  logger.info(
+    `add qsys object: ${args.naem} ${args.deviceId} ${args.ipaddress}`
+  )
+}
+
+function deleteQsys(deviceId) {
+  delete qsys[deviceId]
+  logger.warn(`remove qsys object: ${deviceId}`)
+  console.log(qsys)
 }
 
 function sendCommandQsys(args, command) {
@@ -82,4 +64,12 @@ function dataProcess(deviceId, data) {
   }
   socket.emit('qsysData', qsysData)
 }
-export { qsys, addQsys, getPa, sendCommandQsys, dataProcess }
+export {
+  qsys,
+  qsysData,
+  addQsys,
+  getPa,
+  sendCommandQsys,
+  dataProcess,
+  deleteQsys
+}

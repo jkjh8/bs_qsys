@@ -1,9 +1,10 @@
-import { BrowserWindow as bw, ipcMain } from 'electron'
+import { app, ipcMain, dialog, shell } from 'electron'
 import db from '../db'
 import logger from '../logger'
 import { socket, initSocket, connect } from '/src-electron/api/socketio'
 import status, { initAppFromDb, sendStatus } from '/src-electron/defValues'
 import { addQsys, getPa } from '../qsys'
+import { uploadFile, deleteFile } from '/src-electron/qsys/functions/files'
 
 ipcMain.on('getStatus', () => {
   sendStatus()
@@ -48,6 +49,43 @@ ipcMain.handle('command', async (e, args) => {
       break
     case 'getPa':
       getPa(JSON.parse(args.value))
+      break
+    case 'upload':
+      const data = JSON.parse(args.value)
+      console.log(
+        await uploadFile({
+          ...data,
+          filepath: '',
+          folder: 'examples',
+          filename: 'Pandas Dream.wav'
+        })
+      )
+      // console.log(
+      //   await deleteFile({
+      //     ...data,
+      //     folder: 'examples',
+      //     filename: 'Pandas Dream.wav'
+      //   })
+      // )
+
+      break
+    case 'getFolder':
+      const r = dialog.showOpenDialogSync({
+        title: 'Select Media Folder',
+        properties: ['openDirectory']
+      })
+      rt = r[0]
+      await db.update(
+        { key: 'folder' },
+        { $set: { value: r[0] } },
+        { upsert: true }
+      )
+      break
+    case 'getDefaultFolder':
+      rt = app.getPath('documents')
+      break
+    case 'openFolder':
+      shell.openPath(args.value)
       break
     case 'initVal':
       rt = await initAppFromDb()

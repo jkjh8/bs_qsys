@@ -16,4 +16,12 @@ function eError(msg) {
   })
 }
 
-export { eInfo, eError }
+function eWarn(msg) {
+  logger.warn(msg)
+  sendLogToServer({
+    level: 'warn',
+    message: msg
+  })
+}
+
+export { eInfo, eWarn, eError }
